@@ -21,12 +21,18 @@ export interface ExerciseData {
 const INITIAL_EXERCISES = ['Squat', 'Bench', 'Deadlift'];
 
 interface DailyTrackerProps {
+  currentDate: Date;
   exercises: ExerciseData[];
   onExercisesChange: (exercises: ExerciseData[]) => void;
+  onDateChange: (date: Date) => void;
 }
 
-export const DailyTracker: React.FC<DailyTrackerProps> = ({ exercises, onExercisesChange }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
+export const DailyTracker: React.FC<DailyTrackerProps> = ({ 
+  currentDate, 
+  exercises, 
+  onExercisesChange,
+  onDateChange 
+}) => {
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   const toggleExercise = (index: number) => {
@@ -74,7 +80,8 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({ exercises, onExercis
   };
 
   const handleDateChange = (days: number) => {
-    setCurrentDate(prev => days > 0 ? addDays(prev, days) : subDays(prev, Math.abs(days)));
+    const newDate = days > 0 ? addDays(currentDate, days) : subDays(currentDate, Math.abs(days));
+    onDateChange(newDate);
   };
 
   const openDatePicker = () => {
@@ -101,11 +108,8 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({ exercises, onExercis
             value={format(currentDate, 'yyyy-MM-dd')}
             onChange={(e) => {
               if (e.target.value) {
-                // Handle potential timezone issues by appending time or just parsing manually
-                // But new Date(yyyy-mm-dd) is usually UTC, so we might need to adjust.
-                // date-fns parse might be better, or just taking the input value.
                 const [year, month, day] = e.target.value.split('-').map(Number);
-                setCurrentDate(new Date(year, month - 1, day));
+                onDateChange(new Date(year, month - 1, day));
               }
             }}
             className="hidden-date-input"
