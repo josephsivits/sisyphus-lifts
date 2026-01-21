@@ -11,10 +11,31 @@
   flex-direction: column;
   align-items: center;
   gap: 2rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 h1 {
   font-size: 2rem;
   color: #2c3e50;
   margin-bottom: 1rem;
+}
+
+.trackers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  align-items: center;
+}
+
+/* Tablet/Desktop layout: Side by side */
+@media (min-width: 768px) {
+  .trackers-container {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2rem;
+  }
 }
