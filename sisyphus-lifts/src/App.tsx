@@ -1,22 +1,38 @@
 import './App.css'
 import { DailyTracker } from './components/DailyTracker'
+import type { ExerciseData } from './components/DailyTracker'
 import { OverallTracker } from './components/OverallTracker'
 import { calculateAltitudeGain } from './utils/altitude'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+
+const INITIAL_EXERCISES = ['Squat', 'Bench', 'Deadlift'];
 
 function App() {
-  // Temporary state for demo purposes - in a real app this would be aggregated from multiple DailyTracker entries
-  // For now, we'll start with 0 altitude and let the DailyTracker potentially update it if we were to connect them.
-  // Since DailyTracker is isolated in this demo, let's hardcode a current progress to show off the visual
-  // or just pass 0. Let's give it a fun starting value to see Britton Hill context.
-  const [totalAltitude, setTotalAltitude] = useState(50); // Start partway to Britton Hill (105m)
+  // Initialize exercises state
+  const [exercises, setExercises] = useState<ExerciseData[]>(
+    INITIAL_EXERCISES.map(name => ({
+      name,
+      isExpanded: false,
+      sets: [{ id: crypto.randomUUID(), reps: '', weight: '', unit: 'lbs' }]
+    }))
+  );
+
+  // Calculate total altitude gain from all workouts
+  // In a real app, this would aggregate across multiple days/dates
+  const totalAltitude = useMemo(() => {
+    const altitudeGain = calculateAltitudeGain(exercises);
+    // Start with a base altitude (e.g., 0m) and add the current workout's gain
+    // For now, we'll just use the current workout's gain as the total
+    // In production, you'd accumulate this across dates
+    return altitudeGain;
+  }, [exercises]);
 
   return (
     <div className="app-container">
       <h1>Sisyphus Lifts</h1>
       <div className="trackers-container">
         <OverallTracker currentAltitude={totalAltitude} />
-        <DailyTracker />
+        <DailyTracker exercises={exercises} onExercisesChange={setExercises} />
       </div>
     </div>
   )

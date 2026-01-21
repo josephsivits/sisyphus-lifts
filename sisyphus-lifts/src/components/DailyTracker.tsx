@@ -3,16 +3,16 @@ import { format, addDays, subDays } from 'date-fns';
 import { Calendar, ChevronDown, ChevronRight, ChevronLeft, ChevronRight as ChevronRightIcon, Plus } from 'lucide-react';
 import './DailyTracker.css';
 
-type Unit = 'lbs' | 'kg';
+export type Unit = 'lbs' | 'kg';
 
-interface WorkoutSet {
+export interface WorkoutSet {
   id: string;
   reps: number | '';
   weight: number | '';
   unit: Unit;
 }
 
-interface ExerciseData {
+export interface ExerciseData {
   name: string;
   sets: WorkoutSet[];
   isExpanded: boolean;
@@ -20,27 +20,23 @@ interface ExerciseData {
 
 const INITIAL_EXERCISES = ['Squat', 'Bench', 'Deadlift'];
 
-export const DailyTracker: React.FC = () => {
+interface DailyTrackerProps {
+  exercises: ExerciseData[];
+  onExercisesChange: (exercises: ExerciseData[]) => void;
+}
+
+export const DailyTracker: React.FC<DailyTrackerProps> = ({ exercises, onExercisesChange }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const dateInputRef = useRef<HTMLInputElement>(null);
-  
-  // Initialize state with the requested exercises
-  const [exercises, setExercises] = useState<ExerciseData[]>(
-    INITIAL_EXERCISES.map(name => ({
-      name,
-      isExpanded: false,
-      sets: [{ id: crypto.randomUUID(), reps: '', weight: '', unit: 'lbs' }]
-    }))
-  );
 
   const toggleExercise = (index: number) => {
-    setExercises(prev => prev.map((ex, i) => 
+    onExercisesChange(exercises.map((ex, i) => 
       i === index ? { ...ex, isExpanded: !ex.isExpanded } : ex
     ));
   };
 
   const addSet = (exerciseIndex: number) => {
-    setExercises(prev => prev.map((ex, i) => {
+    onExercisesChange(exercises.map((ex, i) => {
       if (i !== exerciseIndex) return ex;
       const lastSet = ex.sets[ex.sets.length - 1];
       return {
@@ -59,7 +55,7 @@ export const DailyTracker: React.FC = () => {
   };
 
   const updateSet = (exerciseIndex: number, setIndex: number, field: keyof WorkoutSet, value: any) => {
-    setExercises(prev => prev.map((ex, i) => {
+    onExercisesChange(exercises.map((ex, i) => {
       if (i !== exerciseIndex) return ex;
       const newSets = [...ex.sets];
       newSets[setIndex] = { ...newSets[setIndex], [field]: value };
@@ -68,7 +64,7 @@ export const DailyTracker: React.FC = () => {
   };
 
   const toggleUnit = (exerciseIndex: number, setIndex: number) => {
-    setExercises(prev => prev.map((ex, i) => {
+    onExercisesChange(exercises.map((ex, i) => {
       if (i !== exerciseIndex) return ex;
       const newSets = [...ex.sets];
       const currentUnit = newSets[setIndex].unit;
@@ -141,7 +137,7 @@ export const DailyTracker: React.FC = () => {
                           type="number"
                           placeholder="0"
                           value={set.reps}
-                          onChange={(e) => updateSet(exerciseIndex, setIndex, 'reps', e.target.value)}
+                          onChange={(e) => updateSet(exerciseIndex, setIndex, 'reps', e.target.value === '' ? '' : Number(e.target.value))}
                           className="tracker-input"
                         />
                         <span className="input-label">reps</span>
@@ -152,7 +148,7 @@ export const DailyTracker: React.FC = () => {
                           type="number"
                           placeholder="0"
                           value={set.weight}
-                          onChange={(e) => updateSet(exerciseIndex, setIndex, 'weight', e.target.value)}
+                          onChange={(e) => updateSet(exerciseIndex, setIndex, 'weight', e.target.value === '' ? '' : Number(e.target.value))}
                           className="tracker-input"
                         />
                         <button 

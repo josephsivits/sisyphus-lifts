@@ -104,6 +104,10 @@ export const OverallTracker: React.FC<OverallTrackerProps> = ({ currentAltitude 
             fill="white"
             stroke="#2c3e50"
             strokeWidth="3"
+            initial={{ 
+              cx: 10,
+              cy: 290
+            }}
             animate={{ 
               cx: 10 + (280 * (progress / 100)),
               cy: 290 - (280 * ((progress / 100) * (progress / 100) * (3 - 2 * (progress / 100))))
